@@ -38,6 +38,21 @@ TEST(netlib, test_connect) {
 	EXPECT_NO_THROW(np.connect("the_password"));
 }
 
+TEST(netlib, test_connect_bad_password) {
+	mock_network mn;
+	net_protocol np(mn);
+	EXPECT_CALL(mn, send_packet(testing::_, 12))
+		.Times(1)
+		.WillOnce(testing::Return(true));
+	EXPECT_CALL(mn, get_packet(testing::_))
+		.Times(1)
+		.WillOnce(testing::DoAll(
+			testing::SetArgPointee<0>(6),
+			testing::Return("no way")
+			));
+	EXPECT_THROW(np.connect("the_password"), std::logic_error);
+}
+
 TEST(netlib, test_heartbeat) {
 	mock_network mn;
 	net_protocol np(mn);
