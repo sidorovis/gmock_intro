@@ -33,11 +33,12 @@ void net_protocol::heartbeat() {
 	}
 }
 
-void net_protocol::disconnect() {
-	_n.send_packet("bye", 3);
-	size_t s;
-	const char* const answer = _n.get_packet(&s);
-	if (std::string(answer, s) != "baby") {
-		throw std::logic_error("disconnect: bad answer");
-	}
+void net_protocol::validate(const std::string& key) {
+	_n.validate(key);
+	_validated_local_cache.insert(key);
 }
+
+bool net_protocol::is_in_local_cache(const std::string& key) const {
+	return _validated_local_cache.end() != _validated_local_cache.find(key);
+}
+
