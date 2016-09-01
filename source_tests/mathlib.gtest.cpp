@@ -1,7 +1,42 @@
 #include <gtest/gtest.h>
 #include <gmock/gmock.h>
 
-#include "mylib.h"
+#include <memory>
+
+#include "mathlib/mathlib.h"
+
+using namespace mathlib;
+
+namespace {
+
+	class mock_number : public number {
+	public:
+		explicit mock_number(number* const initial)
+			: _initial( initial ) {
+		}
+		explicit mock_number() 
+			: _initial(algebra().create_number(45))
+		{
+			delegate_to_fake();
+		}
+		operator int() const {
+			return value();
+		}
+		MOCK_CONST_METHOD0(value, int());
+		MOCK_CONST_METHOD0(positive, bool());
+		MOCK_METHOD1(add, bool(const number& other));
+		MOCK_METHOD1(subtract, bool(const number& other));
+		MOCK_CONST_METHOD0(prime_decomposition, std::vector<int>());
+
+		void delegate_to_fake() {
+			ON_CALL(*this, value()).
+				WillByDefault(testing::Invoke(_initial.get(), &number::value));
+		}
+	private:
+		const std::unique_ptr<number> _initial;
+	};
+
+}
 
 //namespace {
 //    class number_mock : public tl::number {
@@ -26,13 +61,22 @@
 //    }
 //}
 //
-//TEST(tl_test, constructors) {
-//    std::unique_ptr<tl::number> n15(tl::number::create_unique_number(15));
-//
-//    std::unique_ptr<number_mock> five(new number_mock);
-//    std::unique_ptr<number_mock> seven(new number_mock);
-//    ASSERT_NO_THROW(tl::algebra algebra);
-//}
+TEST(mathlib, constructors) {
+	ASSERT_NO_THROW(algebra);
+	algebra myalgebra;
+	number* n45 = myalgebra.create_number(45);
+	EXPECT_EQ(45, *n45);
+	delete n45;
+	testing::NiceMock<mock_number> mn45;
+	EXPECT_EQ(45, mn45);
+}
+
+TEST(mathlib, number_value) {
+	algebra myalgebra(33);
+	testing::NiceMock<mock_number> n0(myalgebra.create_number(-33));
+	EXPECT_EQ(0, n0);
+	EXPECT_EQ(0, n0.value());
+}
 //
 //TEST(tl_test, add_subtract) {
 //    std::unique_ptr<tl::number> number(tl::number::create_unique_number(3));

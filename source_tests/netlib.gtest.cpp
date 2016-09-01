@@ -33,7 +33,6 @@ TEST(netlib, test_heartbeat) {
 		.WillOnce(testing::Return(false));
 
 	EXPECT_NO_THROW(np.heartbeat());
-
 	EXPECT_THROW(np.heartbeat(), std::logic_error);
 }
 

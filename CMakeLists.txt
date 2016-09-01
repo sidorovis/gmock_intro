@@ -47,7 +47,7 @@ add_executable(${PROGRAM} ${SOURCES})
 find_package(Threads QUIET REQUIRED)
 target_link_libraries( ${PROGRAM} PRIVATE ${CMAKE_THREAD_LIBS_INIT} )
 
-target_link_libraries(${PROGRAM} PRIVATE gtest gtest_main gmock mylib netlib)
+target_link_libraries(${PROGRAM} PRIVATE gtest gtest_main gmock mathlib netlib)
 target_include_directories(${PROGRAM} PRIVATE "source")
 
 add_test(${PROGRAM} ${PROGRAM})
